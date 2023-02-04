@@ -1,7 +1,10 @@
 import { notFoundError } from '@/errors';
+import enrollmentRepository from '@/repositories/enrollment-repository';
 import hotelRepository from '@/repositories/hotel-repository';
 
-async function getAllHotels() {
+async function getHotels(userId: number) {
+  const enrollment = await enrollmentRepository.findWithAddressByUserId(userId)
+  if (!enrollment) throw notFoundError()
   const hotels = await hotelRepository.findAllHotels();
   if (!hotels) {
     throw notFoundError();
@@ -10,7 +13,7 @@ async function getAllHotels() {
 }
 
 const hotelsService = {
-  getAllHotels,
+  getHotels,
 };
 
 export default hotelsService;
