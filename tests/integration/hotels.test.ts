@@ -2,7 +2,7 @@ import app, { init } from '@/app';
 import faker from '@faker-js/faker';
 import httpStatus from 'http-status';
 import supertest from 'supertest';
-import { createHotel, createUser } from '../factories';
+import { createEnrollmentWithAddress, createHotel, createUser } from '../factories';
 import * as jwt from 'jsonwebtoken';
 import { cleanDb, generateValidToken } from '../helpers';
 
@@ -37,16 +37,33 @@ describe('GET / hotels', () => {
   });
 
   describe('when token is valid', () => {
-    it('should respond with an empty array when there are no hotels', async () => {
+    it("should respond with status 404 when user doesnt have an enrollment", async () => {
       const token = await generateValidToken();
-      const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
 
-      expect(response.body).toEqual([]);
+      const response = await server.get("/hotels").set("Authorization", `Bearer ${token}`);
+
+      expect(response.status).toEqual(httpStatus.NOT_FOUND);
     });
+    
+    // it("should respond with status 404 when user doesnt have a ticket yet", async () => {
+    //   const user = await createUser();
+    //   const token = await generateValidToken(user);
+    //   await createEnrollmentWithAddress(user);
 
-    it('should respond with status 200 and with existing hotel data', async () => {
-      const token = await generateValidToken();
+    //   const response = await server.get("/hotels").set("Authorization", `Bearer ${token}`);
 
+    //   expect(response.status).toEqual(httpStatus.NOT_FOUND);
+    // });
+    
+    // it("should respond with status 200 when user has an enrollment",async () => {
+    //   const user = createUser()
+    // })
+    
+    it('should respond with status 200 and hotel data when user has an enrollment', async () => {
+      const user = await createUser()
+      const token = await generateValidToken(user);
+      await createEnrollmentWithAddress(user);
+      
       const hotel = await createHotel();
 
       const response = await server.get('/hotels').set('Authorization', `Bearer ${token}`);
