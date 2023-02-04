@@ -3,9 +3,9 @@ import { prisma } from "@/config";
 import { TicketStatus } from "@prisma/client";
 
 export async function createTicketType(isRemote?: boolean, includesHotel?: boolean) {
-  return prisma.ticketType.create({
+  return await prisma.ticketType.create({
     data: {
-      name: faker.name.findName(),
+      name: faker.commerce.productName(),
       price: faker.datatype.number(),
       isRemote: isRemote || faker.datatype.boolean(),
       includesHotel: includesHotel || faker.datatype.boolean(),
@@ -14,7 +14,7 @@ export async function createTicketType(isRemote?: boolean, includesHotel?: boole
 }
 
 export async function createTicket(enrollmentId: number, ticketTypeId: number, status: TicketStatus) {
-  return prisma.ticket.create({
+  return await prisma.ticket.create({
     data: {
       enrollmentId,
       ticketTypeId,
