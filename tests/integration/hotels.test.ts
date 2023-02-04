@@ -6,6 +6,7 @@ import { createEnrollmentWithAddress, createHotel, createTicket, createTicketTyp
 import * as jwt from 'jsonwebtoken';
 import { cleanDb, generateValidToken } from '../helpers';
 import { TicketStatus } from '@prisma/client';
+import { createRoomInHotel } from '../factories/rooms-factory';
 
 beforeAll(async () => {
   await init();
@@ -224,6 +225,39 @@ describe('GET /hotels/:hotelId', () => {
       const response = await server.get('/hotels/0').set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(404);
+    });
+
+    it('should respond with status 200 & rooms data from hotelId', async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      const enrollment = await createEnrollmentWithAddress(user);
+      const isRemote = false;
+      const includesHotel = true;
+      const ticketType = await createTicketType(isRemote, includesHotel);
+      await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
+      const hotel = await createHotel();
+      const hotelWithRooms = await createRoomInHotel(hotel.id);
+
+      const response = await server.get(`/hotels/${hotel.id}`).set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
+        id: hotel.id,
+        name: hotel.name,
+        image: hotel.image,
+        createdAt: hotel.createdAt.toISOString(),
+        updatedAt: hotel.updatedAt.toISOString(),
+        Rooms: [
+          {
+            id: hotelWithRooms.Rooms[0].id,
+            name: hotelWithRooms.Rooms[0].name,
+            capacity: hotelWithRooms.Rooms[0].capacity,
+            hotelId: hotelWithRooms.Rooms[0].hotelId,
+            createdAt: hotelWithRooms.Rooms[0].createdAt.toISOString(),
+            updatedAt: hotelWithRooms.Rooms[0].updatedAt.toISOString(),
+          },
+        ],
+      });
     });
   });
 });
