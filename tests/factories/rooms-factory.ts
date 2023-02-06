@@ -1,6 +1,6 @@
-import { prisma } from '@/config';
-import faker from '@faker-js/faker';
-import dayjs from 'dayjs';
+import { prisma } from "@/config";
+import faker from "@faker-js/faker";
+import dayjs from "dayjs";
 
 export async function createRoomInHotel(hotelId: number) {
   await prisma.room.create({
@@ -9,7 +9,7 @@ export async function createRoomInHotel(hotelId: number) {
       capacity: faker.datatype.number({ min: 1, max: 6 }),
       hotelId,
       createdAt: dayjs().toDate(),
-      updatedAt: dayjs().add(5, 'days').toDate(),
+      updatedAt: dayjs().add(5, "days").toDate(),
     },
   });
   return await prisma.hotel.findUnique({

@@ -3,12 +3,11 @@ import { authenticateToken, validateParams } from "@/middlewares";
 import { hotelIdSchema } from "@/schemas";
 import { Router } from "express";
 
-
 const hotelsRouter = Router();
 
 hotelsRouter
-    .all("/*", authenticateToken)
-    .get("/", getHotels)
-    .get("/:hotelId", validateParams(hotelIdSchema), getRoomsFromHotelId)
+  .all("/*", authenticateToken)
+  .get("/", getHotels)
+  .get("/:hotelId", validateParams(hotelIdSchema), getRoomsFromHotelId);
 
-export {hotelsRouter}
+export { hotelsRouter };
